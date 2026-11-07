@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://60nmt8l84pld"]
+
+[ext_resource type="Script" uid="uid://bt7x3h40vv475" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/arena.tscn" id="2_arena"]
+[ext_resource type="Script" uid="uid://rqy4qj762lyn" path="res://scripts/isometric_camera.gd" id="3_camera"]
+[ext_resource type="Script" uid="uid://b25vagm7m16om" path="res://scripts/hud.gd" id="4_hud"]
+
+[node name="LastPodOut" type="Node3D" unique_id=853659985]
+script = ExtResource("1_main")
+
+[node name="Arena" parent="." unique_id=1121541734 instance=ExtResource("2_arena")]
+
+[node name="IsometricCamera" type="Camera3D" parent="." unique_id=2060824709]
+current = true
+fov = 52.0
+script = ExtResource("3_camera")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=529829373]
+script = ExtResource("4_hud")

@@ -1,0 +1,7 @@
+res://scripts/main.gd
+res://scripts/player.gd
+res://scripts/industrial_rig_visual.gd
+res://scripts/hud.gd
+res://scripts/arena.gd
+res://scripts/industrial_materials.gd
+res://scripts/pod.gd
