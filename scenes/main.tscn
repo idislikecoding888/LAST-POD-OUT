@@ -11,7 +11,9 @@ script = ExtResource("1_main")
 [node name="Arena" parent="." instance=ExtResource("2_arena")]
 
 [node name="IsometricCamera" type="Camera3D" parent="."]
+projection = 1
 current = true
+size = 58.0
 fov = 52.0
 script = ExtResource("3_camera")
 

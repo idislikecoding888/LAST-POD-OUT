@@ -5,3 +5,4 @@ res://scripts/hud.gd
 res://scripts/arena.gd
 res://scripts/industrial_materials.gd
 res://scripts/pod.gd
+res://scripts/isometric_camera.gd

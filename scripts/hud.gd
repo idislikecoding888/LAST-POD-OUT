@@ -2,10 +2,13 @@
 extends CanvasLayer
 class_name GameHUD
 
+const MINIMAP_SCRIPT = preload("res://scripts/minimap.gd")
+
 ## Runtime-built HUD for LAST POD OUT.
 ## Handles lobby, gameplay objectives, subtitles and incident reports.
 
 var manager: Variant
+var minimap: Control
 
 var root_control: Control
 var lobby_panel: PanelContainer
@@ -35,6 +38,8 @@ func _ready() -> void:
 
 func configure(game_manager: Node) -> void:
 	manager = game_manager
+	if minimap != null:
+		minimap.call("configure", manager)
 
 
 func _build_ui() -> void:
@@ -110,19 +115,31 @@ func _build_ui() -> void:
 	player_status_label.size = Vector2(620, 150)
 	root_control.add_child(player_status_label)
 
+	# Five-room deck radar. Hidden in lobby/report; visible during a match.
+	minimap = Control.new()
+	minimap.name = "DeckMiniMap"
+	minimap.set_script(MINIMAP_SCRIPT)
+	minimap.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	minimap.offset_left = -224.0
+	minimap.offset_top = 72.0
+	minimap.offset_right = -16.0
+	minimap.offset_bottom = 280.0
+	minimap.visible = false
+	root_control.add_child(minimap)
+
 	# ---------------------------------
 	# LOBBY PANEL
 	# ---------------------------------
-	lobby_panel = _panel(Vector2(720, 480))
+	lobby_panel = _panel(Vector2(700, 430))
 	lobby_panel.set_anchors_preset(Control.PRESET_CENTER)
-	lobby_panel.offset_left = -380
-	lobby_panel.offset_top = -245
-	lobby_panel.offset_right = 380
-	lobby_panel.offset_bottom = 245
+	lobby_panel.offset_left = -350
+	lobby_panel.offset_top = -215
+	lobby_panel.offset_right = 350
+	lobby_panel.offset_bottom = 215
 	root_control.add_child(lobby_panel)
 
 	var lobby_box := VBoxContainer.new()
-	lobby_box.add_theme_constant_override("separation", 12)
+	lobby_box.add_theme_constant_override("separation", 8)
 	lobby_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	lobby_panel.add_child(lobby_box)
 
@@ -138,8 +155,8 @@ func _build_ui() -> void:
 		)
 	)
 
-	lobby_text = _label("", 20, Color(0.79, 0.87, 0.92))
-	lobby_text.custom_minimum_size = Vector2(680, 125)
+	lobby_text = _label("", 18, Color(0.79, 0.87, 0.92))
+	lobby_text.custom_minimum_size = Vector2(650, 105)
 	lobby_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lobby_box.add_child(lobby_text)
 
@@ -253,49 +270,30 @@ func show_lobby(
 
 	lobby_panel.visible = true
 	report_panel.visible = false
+	if minimap != null:
+		minimap.visible = false
 
 	phase_label.text = "CREW REGISTRATION"
 	timer_label.text = "CLAUSE 99 // ACTIVE"
-
 	fuel_label.text = "FUEL CELLS 0 / 3"
 	objective_label.text = "AWAITING CREW REGISTRATION"
-
 	player_status_label.text = ""
 
-	var text_value: String = (
-		"USCSS TARTARUS-9 // AETHER-VANGUARD\n\n"
-		+ "RECOVER THREE FUEL CELLS. REACH THE ESCAPE POD. "
-		+ "ONLY ONE EMPLOYEE RECEIVES THE SURVIVOR PENSION.\n\n"
-	)
-
+	var text_value: String = "THREE CELLS. ONE POD. ONE SURVIVOR PENSION.\n"
+	text_value += "USCSS TARTARUS-9 // AETHER-VANGUARD CLAUSE 99\n\n"
 	text_value += "CREW MANIFEST\n"
-
 	if player_rows.is_empty():
-
-		text_value += "NO CREW REGISTERED\n"
-
+		text_value += "NO CREW REGISTERED"
 	else:
-
 		for row in player_rows:
 			text_value += row + "\n"
-
-	text_value += "\nTEST DUMMY: %s\n" % (
-		"ON" if bot_enabled else "OFF"
-	)
-
-	text_value += "\nCONTROLS\n"
-
-	text_value += "MOVE: WASD / LEFT STICK    AIM: MOUSE / RIGHT STICK\n"
-	text_value += "SHOVE: RMB / LT    PARRY: Q / RB    DASH: SHIFT / B\n"
-	text_value += "INTERACT / WELD: E / X    PACT: HOLD F / Y NEAR ALLY\n"
-
-	text_value += "\nSPACE / A JOIN    ENTER / START PLAY    Y / TAB BOT"
-
+	text_value += "\nTEST DUMMY: %s" % ("ON" if bot_enabled else "OFF")
 	lobby_text.text = text_value
 
 
-
 func update_game(manager_value: Variant) -> void:
+	if minimap != null:
+		minimap.visible = true
 	# Critical lobby transition fix:
 	# Any active match must hide the lobby overlay.
 	lobby_panel.visible = false
@@ -397,6 +395,8 @@ func show_incident_report(
 	reason: String,
 	delivered: int
 ) -> void:
+	if minimap != null:
+		minimap.visible = false
 	lobby_panel.visible = false
 	report_panel.visible = true
 

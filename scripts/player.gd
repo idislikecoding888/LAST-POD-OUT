@@ -76,13 +76,14 @@ func _ready() -> void:
 	oxygen = oxygen_max
 	nameplate = Label3D.new()
 	nameplate.name = "CrewNameplate"
-	nameplate.font_size = 38
-	nameplate.pixel_size = 0.0038
+	nameplate.font_size = 48
+	nameplate.pixel_size = 0.008
+	nameplate.outline_size = 7
+	nameplate.outline_modulate = Color(0.015, 0.025, 0.04, 0.95)
 	nameplate.position = Vector3(0.0, 1.4, 0.0)
 	nameplate.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	$VisualRoot.add_child(nameplate)
-	if body_mesh != null:
-		_apply_role_look()
+	# Role visuals are configured in setup() after the manager assigns the slot.
 	var oxygen_back_material := StandardMaterial3D.new()
 	oxygen_back_material.albedo_color = Color(0.018, 0.03, 0.05)
 	oxygen_back_material.metallic = 0.2
@@ -156,48 +157,6 @@ func reset_for_round(spawn_position: Vector3) -> void:
 
 func get_aim_direction() -> Vector3:
 	return current_aim
-
-
-func _build_void_kill_plane() -> void:
-
-	var kill_zone := Area3D.new()
-
-	kill_zone.name = "UniversalVoidKillPlane"
-
-	kill_zone.collision_layer = 0
-	kill_zone.collision_mask = 2
-	kill_zone.monitoring = true
-
-	kill_zone.position = Vector3(0.0, -8.0, 0.0)
-
-	var shape_node := CollisionShape3D.new()
-
-	var shape := BoxShape3D.new()
-	shape.size = Vector3(100.0, 2.0, 100.0)
-
-	shape_node.shape = shape
-
-	kill_zone.add_child(shape_node)
-
-	kill_zone.body_entered.connect(
-		_on_void_body_entered
-	)
-
-	add_child(kill_zone)
-
-
-func _on_void_body_entered(body: Node3D) -> void:
-
-	if body is PlayerController:
-
-		var player := body as PlayerController
-
-		if player.is_alive:
-
-			player.eliminate(
-				"event horizon exposure — personnel fell below the mining deck"
-			)
-
 
 
 func _physics_process(delta: float) -> void:
@@ -550,6 +509,8 @@ func _update_oxygen_bar() -> void:
 
 func _perform_shove() -> void:
 	# The attacker keeps their own cargo; a successful target hit drops the target's cell.
+	if rig_visual != null:
+		rig_visual.play_action("push")
 	if manager != null:
 		manager.try_shove(self, current_aim, shove_range, shove_force)
 
